@@ -132,6 +132,14 @@ class Pluggit extends IPSModule
                 IPS_SetName($var, $property['name']);
                 IPS_SetParent($var, $this->InstanceID);
             }
+            if($property['varProfile'] != null) {
+                if(IPS_VariableProfileExists($property['varProfile']))
+                    IPS_SetVariableCustomProfile($var, $property['varProfile']);
+            }
+            if($property['varHasAction'])
+                $this->EnableAction($property['ident']);
+            else
+                @$this->DisableAction($property['ident']);
         }
 
         $var = @IPS_GetObjectIDByIdent("AlarmArchive", $this->InstanceID);
@@ -187,20 +195,6 @@ class Pluggit extends IPSModule
     public function Update() {
         foreach($this->Modbus_Properties as $property) {
             $var = @IPS_GetObjectIDByIdent($property['ident'], $this->InstanceID);
-            if(!$var) {
-                $var = IPS_CreateVariable($property['varType']);
-                IPS_SetIdent($var, $property['ident']);
-                IPS_SetName($var, $property['name']);
-                IPS_SetParent($var, $this->InstanceID);
-            }
-            if($property['varProfile'] != null) {
-                if(IPS_VariableProfileExists($property['varProfile']))
-                    IPS_SetVariableCustomProfile($var, $property['varProfile']);
-            }
-            if($property['varHasAction'])
-                $this->EnableAction($property['ident']);
-            else
-                @$this->DisableAction($property['ident']);
             
             $value = null;
 
