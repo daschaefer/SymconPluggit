@@ -1,0 +1,14 @@
+{
+	"id": "{08C2B66F-81A1-439C-AA4C-967B0AFCA53F}",
+	"name": "Pluggit",
+	"type": 3,
+	"vendor": "",
+	"aliases": 
+	[
+		"Pluggit UVC"
+	],
+	"parentRequirements": [],
+	"childRequirements": [],
+	"implemented": [],
+	"prefix": "PLUGGIT"
+}

@@ -1,0 +1,15 @@
+{
+	"elements":
+	[
+		{ "name": "IP",                 "type": "ValidationTextBox", "caption": "IP-Adresse:" },
+    	{ "name": "Poller",             "type": "NumberSpinner", "caption": "Abfrageintervall (s):" },
+    	{ "name": "ResetFanSpeedLevel", "type": "NumberSpinner", "caption": "Stufenwiederherstellung (h):" },
+        { "name": "AlarmArchive",       "type": "CheckBox",             "caption": "Störungen protokollieren" }
+	],
+	"status":
+    [
+        { "code": 102, "icon": "active", "caption": "Modulkonfiguration in Ordnung!" },
+        { "code": 201, "icon": "error", "caption": "Modbus fehlerhaft!" },
+    ]
+
+}
