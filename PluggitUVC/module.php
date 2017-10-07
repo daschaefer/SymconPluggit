@@ -692,6 +692,19 @@ class Pluggit extends IPSModule
         return $output;   
     }
 
+    public function GetAlarmStateAsText() {
+        $return = "";
+
+        $alarmState = $this->GetAlarmState();
+        $AlarmProfileAssociations = IPS_GetVariableProfile("PLUGGIT.AlarmState")["Associations"];
+        foreach($AlarmProfileAssociations as $association) {
+            if($association['Value'] == $alarmState)
+                $return = $association['Name'];
+        }
+
+        return $return;   
+    }
+
     public function GetVOC() {
         $address = 40431;
         $result = $this->SendReadRequest(($address-40001), 2);
