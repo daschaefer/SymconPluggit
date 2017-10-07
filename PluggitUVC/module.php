@@ -34,6 +34,8 @@ class Pluggit extends IPSModule
     {
         parent::Create();
 
+        $this->CreateVariableProfiles();
+
         $this->RegisterPropertyString("IP", "");
         $this->RegisterPropertyInteger("Poller", 3);
         $this->RegisterPropertyInteger("ResetFanSpeedLevel", 1);
@@ -50,78 +52,6 @@ class Pluggit extends IPSModule
         // Get Handler for Archive
         $instances = IPS_GetInstanceListByModuleID('{43192F0B-135B-4CE7-A0A7-1475603F3060}'); 
         $archive_handler = $instances[0];
-
-        // Start create profiles
-        $profileName = "PLUGGIT.FANSpeedRPM";
-        if(!IPS_VariableProfileExists($profileName)) {
-            IPS_CreateVariableProfile($profileName, 2);
-        }
-        IPS_SetVariableProfileText($profileName, "", " U/min");
-
-        $profileName = "PLUGGIT.FilterRemainingTime";
-        if(!IPS_VariableProfileExists($profileName)) {
-            IPS_CreateVariableProfile($profileName, 1);
-        }
-        IPS_SetVariableProfileAssociation($profileName, 1, "0 Tage", "", null);
-        IPS_SetVariableProfileAssociation($profileName, 10, "Reset", "", 0x74A3FA);
-
-        $profileName = "PLUGGIT.FANSpeedLevels";
-        if(!IPS_VariableProfileExists($profileName)) {
-            IPS_CreateVariableProfile($profileName, 1);
-        }
-        IPS_SetVariableProfileAssociation($profileName, 0, "Aus", "", null);
-        IPS_SetVariableProfileAssociation($profileName, 1, "Stufe 1", "", 0x8a94a1);
-        IPS_SetVariableProfileAssociation($profileName, 2, "Stufe 2", "", 0x00FF00);
-        IPS_SetVariableProfileAssociation($profileName, 3, "Stufe 3", "", 0x00FF00);
-        IPS_SetVariableProfileAssociation($profileName, 4, "Stufe 4", "", 0xef9418);
-
-        $profileName = "PLUGGIT.BypassState";
-        if(!IPS_VariableProfileExists($profileName)) {
-            IPS_CreateVariableProfile($profileName, 1);
-        }
-
-        $profileName = "PLUGGIT.UnitMode";
-        if(!IPS_VariableProfileExists($profileName)) {
-            IPS_CreateVariableProfile($profileName, 1);
-        }
-        IPS_SetVariableProfileAssociation($profileName, 0,      "Standby", "", null);
-        IPS_SetVariableProfileAssociation($profileName, 1,      "Manuell*", "", 0xfffb00);
-        IPS_SetVariableProfileAssociation($profileName, 2,      "Bedarfsgesteuert*", "", null);
-        IPS_SetVariableProfileAssociation($profileName, 3,      "Wochenplan*", "", null);
-        IPS_SetVariableProfileAssociation($profileName, 4,      "Servo-flow", "", null);
-        IPS_SetVariableProfileAssociation($profileName, 5,      "Abwesenheit*", "", null);
-        IPS_SetVariableProfileAssociation($profileName, 6,      "Sommer*", "", null);
-        IPS_SetVariableProfileAssociation($profileName, 7,      "DI Override", "", null);
-        IPS_SetVariableProfileAssociation($profileName, 8,      "Hygrostat Override", "", null);
-        IPS_SetVariableProfileAssociation($profileName, 9,      "Feuerstätte*", "", null);
-        IPS_SetVariableProfileAssociation($profileName, 10,     "Einrichtung", "", 0xef9418);
-        IPS_SetVariableProfileAssociation($profileName, 11,     "Failsafe", "", 0xFF0000);
-        IPS_SetVariableProfileAssociation($profileName, 12,     "Failsafe2", "", 0xFF0000);
-        IPS_SetVariableProfileAssociation($profileName, 13,     "Fail Off", "", null);
-        IPS_SetVariableProfileAssociation($profileName, 14,     "Abtauen Ende", "", null);
-        IPS_SetVariableProfileAssociation($profileName, 15,     "Abtauen", "", null);
-        IPS_SetVariableProfileAssociation($profileName, 16,     "Nachtabsenkung*", "", 0x74A3FA);
-
-        $profileName = "PLUGGIT.AlarmState";
-        if(!IPS_VariableProfileExists($profileName)) {
-            IPS_CreateVariableProfile($profileName, 1);
-        }
-        IPS_SetVariableProfileAssociation($profileName, 0,      "keine", "", 0x00FF00);
-        IPS_SetVariableProfileAssociation($profileName, 1,      "Abluft Lüfter", "", 0xFF0000);
-        IPS_SetVariableProfileAssociation($profileName, 2,      "Zuluft Lüfter", "", 0xFF0000);
-        IPS_SetVariableProfileAssociation($profileName, 3,      "Bypass", "", 0xFF0000);
-        IPS_SetVariableProfileAssociation($profileName, 4,      "Temperatur Außenluft", "", 0xFF0000);
-        IPS_SetVariableProfileAssociation($profileName, 5,      "Temperatur Zuluft", "", 0xFF0000);
-        IPS_SetVariableProfileAssociation($profileName, 6,      "Temperatur Abluft", "", 0xFF0000);
-        IPS_SetVariableProfileAssociation($profileName, 7,      "Temperatur Fortluft", "", 0xFF0000);
-        IPS_SetVariableProfileAssociation($profileName, 8,      "Temperatur Raumluft (Fernbedienung)", "", 0xFF0000);
-        IPS_SetVariableProfileAssociation($profileName, 9,      "Luftfeuchte", "", 0xFF0000);
-        IPS_SetVariableProfileAssociation($profileName, 10,     "Outdoor13", "", 0xFF0000);
-        IPS_SetVariableProfileAssociation($profileName, 11,     "Supply5", "", 0xFF0000);
-        IPS_SetVariableProfileAssociation($profileName, 12,     "Feuer", "", 0xFF0000);
-        IPS_SetVariableProfileAssociation($profileName, 13,     "Kommunikation", "", 0xFF0000);
-        IPS_SetVariableProfileAssociation($profileName, 14,     "Feuer Thermostat", "", 0xFF0000);
-        IPS_SetVariableProfileAssociation($profileName, 15,     "Wasserstand", "", 0xFF0000);
 
         // create variables
         foreach ($this->Modbus_Properties as $property) {
@@ -957,6 +887,80 @@ class Pluggit extends IPSModule
     {
         $instance = IPS_GetInstance($id);
         return ($instance['ConnectionID'] > 0) ? $instance['ConnectionID'] : false;
+    }
+
+    protected function CreateVariableProfiles() {
+        // Start create profiles
+        $profileName = "PLUGGIT.FANSpeedRPM";
+        if(!IPS_VariableProfileExists($profileName)) {
+            IPS_CreateVariableProfile($profileName, 2);
+        }
+        IPS_SetVariableProfileText($profileName, "", " U/min");
+
+        $profileName = "PLUGGIT.FilterRemainingTime";
+        if(!IPS_VariableProfileExists($profileName)) {
+            IPS_CreateVariableProfile($profileName, 1);
+        }
+        IPS_SetVariableProfileAssociation($profileName, 1, "0 Tage", "", null);
+        IPS_SetVariableProfileAssociation($profileName, 10, "Reset", "", 0x74A3FA);
+
+        $profileName = "PLUGGIT.FANSpeedLevels";
+        if(!IPS_VariableProfileExists($profileName)) {
+            IPS_CreateVariableProfile($profileName, 1);
+        }
+        IPS_SetVariableProfileAssociation($profileName, 0, "Aus", "", null);
+        IPS_SetVariableProfileAssociation($profileName, 1, "Stufe 1", "", 0x8a94a1);
+        IPS_SetVariableProfileAssociation($profileName, 2, "Stufe 2", "", 0x00FF00);
+        IPS_SetVariableProfileAssociation($profileName, 3, "Stufe 3", "", 0x00FF00);
+        IPS_SetVariableProfileAssociation($profileName, 4, "Stufe 4", "", 0xef9418);
+
+        $profileName = "PLUGGIT.BypassState";
+        if(!IPS_VariableProfileExists($profileName)) {
+            IPS_CreateVariableProfile($profileName, 1);
+        }
+
+        $profileName = "PLUGGIT.UnitMode";
+        if(!IPS_VariableProfileExists($profileName)) {
+            IPS_CreateVariableProfile($profileName, 1);
+        }
+        IPS_SetVariableProfileAssociation($profileName, 0,      "Standby", "", null);
+        IPS_SetVariableProfileAssociation($profileName, 1,      "Manuell*", "", 0xfffb00);
+        IPS_SetVariableProfileAssociation($profileName, 2,      "Bedarfsgesteuert*", "", null);
+        IPS_SetVariableProfileAssociation($profileName, 3,      "Wochenplan*", "", null);
+        IPS_SetVariableProfileAssociation($profileName, 4,      "Servo-flow", "", null);
+        IPS_SetVariableProfileAssociation($profileName, 5,      "Abwesenheit*", "", null);
+        IPS_SetVariableProfileAssociation($profileName, 6,      "Sommer*", "", null);
+        IPS_SetVariableProfileAssociation($profileName, 7,      "DI Override", "", null);
+        IPS_SetVariableProfileAssociation($profileName, 8,      "Hygrostat Override", "", null);
+        IPS_SetVariableProfileAssociation($profileName, 9,      "Feuerstätte*", "", null);
+        IPS_SetVariableProfileAssociation($profileName, 10,     "Einrichtung", "", 0xef9418);
+        IPS_SetVariableProfileAssociation($profileName, 11,     "Failsafe", "", 0xFF0000);
+        IPS_SetVariableProfileAssociation($profileName, 12,     "Failsafe2", "", 0xFF0000);
+        IPS_SetVariableProfileAssociation($profileName, 13,     "Fail Off", "", null);
+        IPS_SetVariableProfileAssociation($profileName, 14,     "Abtauen Ende", "", null);
+        IPS_SetVariableProfileAssociation($profileName, 15,     "Abtauen", "", null);
+        IPS_SetVariableProfileAssociation($profileName, 16,     "Nachtabsenkung*", "", 0x74A3FA);
+
+        $profileName = "PLUGGIT.AlarmState";
+        if(!IPS_VariableProfileExists($profileName)) {
+            IPS_CreateVariableProfile($profileName, 1);
+        }
+        IPS_SetVariableProfileAssociation($profileName, 0,      "keine", "", 0x00FF00);
+        IPS_SetVariableProfileAssociation($profileName, 1,      "Abluft Lüfter", "", 0xFF0000);
+        IPS_SetVariableProfileAssociation($profileName, 2,      "Zuluft Lüfter", "", 0xFF0000);
+        IPS_SetVariableProfileAssociation($profileName, 3,      "Bypass", "", 0xFF0000);
+        IPS_SetVariableProfileAssociation($profileName, 4,      "Temperatur Außenluft", "", 0xFF0000);
+        IPS_SetVariableProfileAssociation($profileName, 5,      "Temperatur Zuluft", "", 0xFF0000);
+        IPS_SetVariableProfileAssociation($profileName, 6,      "Temperatur Abluft", "", 0xFF0000);
+        IPS_SetVariableProfileAssociation($profileName, 7,      "Temperatur Fortluft", "", 0xFF0000);
+        IPS_SetVariableProfileAssociation($profileName, 8,      "Temperatur Raumluft (Fernbedienung)", "", 0xFF0000);
+        IPS_SetVariableProfileAssociation($profileName, 9,      "Luftfeuchte", "", 0xFF0000);
+        IPS_SetVariableProfileAssociation($profileName, 10,     "Outdoor13", "", 0xFF0000);
+        IPS_SetVariableProfileAssociation($profileName, 11,     "Supply5", "", 0xFF0000);
+        IPS_SetVariableProfileAssociation($profileName, 12,     "Feuer", "", 0xFF0000);
+        IPS_SetVariableProfileAssociation($profileName, 13,     "Kommunikation", "", 0xFF0000);
+        IPS_SetVariableProfileAssociation($profileName, 14,     "Feuer Thermostat", "", 0xFF0000);
+        IPS_SetVariableProfileAssociation($profileName, 15,     "Wasserstand", "", 0xFF0000);
     }
 
     protected function ModuleLogMessage($message) {
