@@ -248,6 +248,7 @@ class Pluggit extends IPSModule
                     if($switch_value > 0)
                         IPS_SetVariableProfileAssociation($profileName, $switch_value, $switch_label, "", $switch_color);
 
+                    IPS_SetVariableCustomProfile($var, $profileName);
                     break;
                 case 'prmVOC':
                     $value = $this->GetVOC();
@@ -275,9 +276,9 @@ class Pluggit extends IPSModule
                             }
 
                             if($value != 0)
-                                $trigger = "Neue Störung: '".$trigger."'.";
+                                $trigger = "Störung: '".$trigger."'.";
                             else
-                                $trigger = "Störung wurde behoben.";
+                                $trigger = "Störung behoben.";
 
                             SetValue($alarmArchive, $trigger);
                         }
@@ -289,9 +290,6 @@ class Pluggit extends IPSModule
 
             if($value != GetValue($var))
                 SetValue($var, $value);
-
-            // $AlarmProfile = IPS_GetVariableProfile("PLUGGIT.AlarmState");
-            // var_dump($AlarmProfile);
         }
     }
 
