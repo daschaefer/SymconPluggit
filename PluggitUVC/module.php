@@ -195,9 +195,9 @@ class Pluggit extends IPSModule
 
                     switch ($value) {
                         case 0:
-                            $status_label = "Geschlossen";
+                            $status_label = "Aus";
                             $status_color = 0x8a94a1;
-                            $switch_label = "Bypass öffnen";
+                            $switch_label = "Bypass einschalten";
                             $switch_color = 0x74A3FA;
                             $switch_value = 128;
                             break;
@@ -210,23 +210,23 @@ class Pluggit extends IPSModule
                             $switch_value = -1;
                             break;
                         case 32:
-                            $status_label = "Bypass wird geschlossen";
+                            $status_label = "Bypass wird ausgeschaltet";
                             $status_color = 0xdfce00;
                             $switch_label = "---";
                             $switch_color = null;
                             $switch_value = -1;
                             break;
                         case 64:
-                            $status_label = "Bypass wird geöffnet";
+                            $status_label = "Bypass wird eingeschaltet";
                             $status_color = 0xdfce00;
                             $switch_label = "---";
                             $switch_color = null;
                             $switch_value = -1;
                             break;
                         case 255:
-                            $status_label = "Offen";
+                            $status_label = "Ein";
                             $status_color = 0x74A3FA;
-                            $switch_label = "Bypass schließen";
+                            $switch_label = "Bypass ausschalten";
                             $switch_color = 0x8a94a1;
                             $switch_value = 32896;
                             break;
@@ -244,7 +244,7 @@ class Pluggit extends IPSModule
                     $profileName = "PLUGGIT.BypassState";
                     IPS_DeleteVariableProfile($profileName);
                     IPS_CreateVariableProfile($profileName, 1);
-                    IPS_SetVariableProfileAssociation($profileName, $value,        $status_label, "", $status_color);
+                    IPS_SetVariableProfileAssociation($profileName, $value, $status_label, "", $status_color);
                     if($switch_value > 0)
                         IPS_SetVariableProfileAssociation($profileName, $switch_value, $switch_label, "", $switch_color);
 
@@ -555,7 +555,7 @@ class Pluggit extends IPSModule
             $dataTypes = array("DINT");
             $this->SendWriteRequest(($address-40001), $data, $dataTypes);
 
-            if($value == 4) {
+            if($value == 0 || $value == 4) {
                 $this->SetTimerInterval("ResetFanSpeedLevel", $this->ReadPropertyInteger("ResetFanSpeedLevel")*3600000);
             }
         }
@@ -663,8 +663,8 @@ class Pluggit extends IPSModule
             case 60: $datax = 34816; break;         // EndSummer
             case 9: $datax = 64; break;             // StartFirePlace
             case 90: $datax = 32832; break;         // EndFirePlace
-            case 128: $datax = $value; break;          // OpenManualBypass
-            case 32896: $datax = $value; break;      // OpenManualBypass Deaktiviert
+            case 128: $datax = $value; break;       // OpenManualBypass
+            case 32896: $datax = $value; break;     // OpenManualBypass Deaktiviert
             default: $datax = null; break;          // default
         }
 
@@ -959,7 +959,7 @@ class Pluggit extends IPSModule
         IPS_SetVariableProfileAssociation($profileName, 0,      "keine", "", 0x00d900);
         IPS_SetVariableProfileAssociation($profileName, 1,      "Abluft Lüfter", "", 0xFF0000);
         IPS_SetVariableProfileAssociation($profileName, 2,      "Zuluft Lüfter", "", 0xFF0000);
-        IPS_SetVariableProfileAssociation($profileName, 3,      "Bypass", "", 0xFF0000);
+        IPS_SetVariableProfileAssociation($profileName, 3,      "Bypass Status", "", 0xFF0000);
         IPS_SetVariableProfileAssociation($profileName, 4,      "Temperatur Außenluft", "", 0xFF0000);
         IPS_SetVariableProfileAssociation($profileName, 5,      "Temperatur Zuluft", "", 0xFF0000);
         IPS_SetVariableProfileAssociation($profileName, 6,      "Temperatur Abluft", "", 0xFF0000);

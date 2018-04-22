@@ -104,6 +104,12 @@ Gibt den aktuellen Störungswert zurück.
 
 ---
 ```php
+PLUGGIT_GetAlarmStateAsText(integer $InstanceID)
+```
+Gibt die aktuelle Störungsbezeichnung zurück.
+
+---
+```php
 PLUGGIT_GetBypassState(integer $InstanceID)
 ```
 Gibt den aktuellen Zustand des Bypasses zurück.
