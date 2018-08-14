@@ -41,8 +41,8 @@ class Pluggit extends IPSModule
         $this->RegisterPropertyInteger("ResetFanSpeedLevel", 1);
         $this->RegisterPropertyInteger("AlarmArchive", 1);
 
-        $this->RegisterTimer("Poller", 0, "PLUGGIT_Update(\$_IPS['TARGET']);");
-        $this->RegisterTimer("ResetFanSpeedLevel", 0, "PLUGGIT_SetFanSpeedLevel(\$_IPS['TARGET'], 3);");
+        $this->RegisterTimer("Poller", 0, "PLUG_Update(\$_IPS['TARGET']);");
+        $this->RegisterTimer("ResetFanSpeedLevel", 0, "PLUG_SetFanSpeedLevel(\$_IPS['TARGET'], 3);");
     }
     
     public function ApplyChanges()

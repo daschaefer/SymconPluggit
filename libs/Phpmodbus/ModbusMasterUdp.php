@@ -43,7 +43,7 @@ class ModbusMasterUdp extends ModbusMaster {
    *     
    * @param String $host An IP address of a Modbus UDP device. E.g. "192.168.1.1".
    */         
-  function ModbusMasterUdp($host){
+  function __construct($host){
     $this->host = $host;
     $this->socket_protocol = "UDP";    
   }

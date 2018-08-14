@@ -74,168 +74,168 @@ Danach ist es möglich eine neue Pluggit UVC Instanz innerhalb des Objektbaumes 
 ## 4. Funktionen
 
 ```php
-PLUGGIT_GetAirTemperatureExhaust(integer $InstanceID)
+PLUG_GetAirTemperatureExhaust(integer $InstanceID)
 ```
 Gibt die aktuelle Temperatur der Fortluft zurück.
 
 ---
 ```php
-PLUGGIT_GetAirTemperatureExtract(integer $InstanceID)
+PLUG_GetAirTemperatureExtract(integer $InstanceID)
 ```
 Gibt die aktuelle Temperatur der Abluft zurück.
 
 ---
 ```php
-PLUGGIT_GetAirTemperatureOutdoor(integer $InstanceID)
+PLUG_GetAirTemperatureOutdoor(integer $InstanceID)
 ```
 Gibt die aktuelle Temperatur der Frischluft zurück.
 
 ---
 ```php
-PLUGGIT_GetAirTemperatureSupply(integer $InstanceID)
+PLUG_GetAirTemperatureSupply(integer $InstanceID)
 ```
 Gibt die aktuelle Temperatur der Zuluft zurück.
 
 ---
 ```php
-PLUGGIT_GetAlarmState(integer $InstanceID)
+PLUG_GetAlarmState(integer $InstanceID)
 ```
 Gibt den aktuellen Störungswert zurück.
 
 ---
 ```php
-PLUGGIT_GetAlarmStateAsText(integer $InstanceID)
+PLUG_GetAlarmStateAsText(integer $InstanceID)
 ```
 Gibt die aktuelle Störungsbezeichnung zurück.
 
 ---
 ```php
-PLUGGIT_GetBypassState(integer $InstanceID)
+PLUG_GetBypassState(integer $InstanceID)
 ```
 Gibt den aktuellen Zustand des Bypasses zurück.
 
 ---
 ```php
-PLUGGIT_GetCO2(integer $InstanceID)
+PLUG_GetCO2(integer $InstanceID)
 ```
 Gibt den aktuellen Wert vom CO2 Sensor zurück.
 
 ---
 ```php
-PLUGGIT_GetDevieSerialnumber(integer $InstanceID)
+PLUG_GetDevieSerialnumber(integer $InstanceID)
 ```
 Gibt die Seriennummer vom Gerät zurück.
 
 ---
 ```php
-PLUGGIT_GetDHCPStatus(integer $InstanceID)
+PLUG_GetDHCPStatus(integer $InstanceID)
 ```
 Gibt zurück ob DHCP aktiviert wurde oder nicht.
 
 ---
 ```php
-PLUGGIT_GetFan1RPM(integer $InstanceID)
+PLUG_GetFan1RPM(integer $InstanceID)
 ```
 Gibt die Drehzahl des ersten Lüfters zurück.
 
 ---
 ```php
-PLUGGIT_GetFan2RPM(integer $InstanceID)
+PLUG_GetFan2RPM(integer $InstanceID)
 ```
 Gibt die Drehzahl des zweiten Lüfters zurück.
 
 ---
 ```php
-PLUGGIT_GetFanSpeedLevel(integer $InstanceID)
+PLUG_GetFanSpeedLevel(integer $InstanceID)
 ```
 Gibt die aktuelle Lüfterstufe zurück.
 
 ---
 ```php
-PLUGGIT_GetFilterRemainingDays(integer $InstanceID)
+PLUG_GetFilterRemainingDays(integer $InstanceID)
 ```
 Gibt die Restzeit für den Filter in Tagen zurück.
 
 ---
 ```php
-PLUGGIT_FirmwareVersion(integer $InstanceID)
+PLUG_FirmwareVersion(integer $InstanceID)
 ```
 Gibt die Firmware Version vom Gerät zurück.
 
 ---
 ```php
-PLUGGIT_GetHumidity(integer $InstanceID)
+PLUG_GetHumidity(integer $InstanceID)
 ```
 Gibt die aktuell gemessene Luftfeuchtigkeit im Lüftungsprozess zurück (optionaler Sensor als Zubehör erforderlich).
 
 ---
 ```php
-PLUGGIT_GetMACAddress(integer $InstanceID)
+PLUG_GetMACAddress(integer $InstanceID)
 ```
 Gibt die MAC-Adresse vom Gerät zurück.
 
 ---
 ```php
-PLUGGIT_GetNetworkGateway(integer $InstanceID)
+PLUG_GetNetworkGateway(integer $InstanceID)
 ```
 Gibt das konfigurierte Netzwerkgateway zurück.
 
 ---
 ```php
-PLUGGIT_GetNetworkIPAddress(integer $InstanceID)
+PLUG_GetNetworkIPAddress(integer $InstanceID)
 ```
 Gibt die konfigurierte IP-Adresse zurück.
 
 ---
 ```php
-PLUGGIT_GetNetworkNetmask(integer $InstanceID)
+PLUG_GetNetworkNetmask(integer $InstanceID)
 ```
 Gibt die konfigurierte Netzwerkmaske zurück.
 
 ---
 ```php
-PLUGGIT_GetOperatingState(integer $InstanceID)
+PLUG_GetOperatingState(integer $InstanceID)
 ```
 Gibt den aktuellen Betriebsmodus zurück.
 
 ---
 ```php
-PLUGGIT_GetPreheaterPower(integer $InstanceID)
+PLUG_GetPreheaterPower(integer $InstanceID)
 ```
 Gibt die aktuell abgerufene Leistung vom Vorheizregister in Prozent zurück.
 
 ---
 ```php
-PLUGGIT_GetVOC(integer $InstanceID)
+PLUG_GetVOC(integer $InstanceID)
 ```
 Gibt den aktuellen Wert vom VOC-Sensor zurück (optional als Zubehör erhältlich).
 
 ---
 ```php
-PLUGGIT_ResetFilterRemainingDays(integer $InstanceID)
+PLUG_ResetFilterRemainingDays(integer $InstanceID)
 ```
 Setzt die Restzeit vom Filter zurück.
 
 ---
 ```php
-PLUGGIT_SetBypassState(integer $InstanceID, integer $Value)
+PLUG_SetBypassState(integer $InstanceID, integer $Value)
 ```
 Öffnet oder schließt den Bypass. Gültige Parameterwerte gemäß der Protokollbeschreibung von Pluggit.
 
 ---
 ```php
-PLUGGIT_SetFanSpeedLevel(integer $InstanceID, integer $Value)
+PLUG_SetFanSpeedLevel(integer $InstanceID, integer $Value)
 ```
 Setzt die Lüfterstufe. Gültige Parameterwerte gemäß der Protokollbeschreibung von Pluggit.
 
 ---
 ```php
-PLUGGIT_SetOperatingState(integer $InstanceID, integer $Value)
+PLUG_SetOperatingState(integer $InstanceID, integer $Value)
 ```
 Setzt den Betriebsmodus. Gültige Parameterwerte gemäß der Protokollbeschreibung von Pluggit.
 
 ---
 ```php
-PLUGGIT_Update(integer $InstanceID)
+PLUG_Update(integer $InstanceID)
 ```
 Aktualisiert alle Variablen.
