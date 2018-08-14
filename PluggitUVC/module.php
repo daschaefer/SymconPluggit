@@ -543,7 +543,7 @@ class Pluggit extends IPSModule
         return $output;
     }
 
-    public function SetFanSpeedLevel($value) {
+    public function SetFanSpeedLevel(?int $value) {
         $this->SetTimerInterval("ResetFanSpeedLevel", 0);
 
         if($value >= 0 && $value <= 4) {
@@ -628,7 +628,7 @@ class Pluggit extends IPSModule
         return $output;
     }
 
-    public function SetBypassState($value) {
+    public function SetBypassState(?int $value) {
         if($value == 128 || $value == 32896) {
             $this->SetOperatingState($value);
         }
@@ -649,7 +649,7 @@ class Pluggit extends IPSModule
         return $output;
     }
 
-    public function SetOperatingState($value) {
+    public function SetOperatingState(?int $value) {
         $address = 40169;
 
         switch ($value) {
