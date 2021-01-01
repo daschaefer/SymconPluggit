@@ -65,7 +65,11 @@ Danach ist es möglich eine neue Pluggit UVC Instanz innerhalb des Objektbaumes 
 
 **Stufenwiederherstellung (h):**
 
-*Beim setzen der Lüfterstufe 4 wird diese nach der angegebenen Zeit wieder auf Stufe 3 zurückgesetzt. (Default: 1h)*
+*Beim setzen der Lüfterstufe Aus oder 4 wird diese nach der angegebenen Zeit wieder auf die Stufe 3 zurückgesetzt (Default: 3h). Leider hat meine P310 die Eigenart, dass sie selbstständig vor dem Ablauf der Stufenwiederherstellung die Lüfterstufe reguliert. Es wird deshalb alle 60 Sekunden geprüft, ob die gewählte Stufe noch gesetzt wurde, anderenfalls wird diese erneut gesetzt.*
+
+**Silvester Automatik:**
+
+*Aktiviert eine Automatik welche von 31.12. des Jahres 23:00 Uhr bis 01.01. 05:00 Uhr des neuen Jahres (Silvesternacht) die Lüftungsstufe auf 0 setzt. So wird verhindert, dass unangenehme Gerüche und Rauch vom Feuerwerk durch die Lüftungsanlage ins Gebäude gelangt. (Default: Aktiviert)* 
 
 **Störungen protokollieren:**
 

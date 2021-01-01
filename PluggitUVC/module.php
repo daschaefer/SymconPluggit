@@ -1,4 +1,4 @@
-<?
+<?php
 
 require_once(__dir__.'/../libs/Phpmodbus/ModbusMaster.php');
 
@@ -21,7 +21,7 @@ class Pluggit extends IPSModule
         array("name" => "Lüfter Stufe",                         "ident" => "prmRomIdxSpeedLevel",           "varType" => 1,     "varProfile" => "PLUGGIT.FANSpeedLevels",       "varHasAction" => true),
         array("name" => "Lüfter1 Umdrehungsgeschwindigkeit",    "ident" => "prmHALTaho1",                   "varType" => 2,     "varProfile" => "PLUGGIT.FANSpeedRPM",          "varHasAction" => false),
         array("name" => "Lüfter2 Umdrehungsgeschwindigkeit",    "ident" => "prmHALTaho2",                   "varType" => 2,     "varProfile" => "PLUGGIT.FANSpeedRPM",          "varHasAction" => false),
-        array("name" => "Filter Restzeit",                      "ident" => "prmFilterRemainingTime",        "varType" => 1,     "varProfile" => "PLUGGIT.FilterRemainingTime",  "varHasAction" => true),
+        array("name" => "Restzeit Filter",                      "ident" => "prmFilterRemainingTime",        "varType" => 1,     "varProfile" => "PLUGGIT.FilterRemainingTime",  "varHasAction" => true),
         array("name" => "Betriebsmodus",                        "ident" => "prmRamIdxUnitMode",             "varType" => 1,     "varProfile" => "PLUGGIT.UnitMode",             "varHasAction" => true),
         array("name" => "Bypass Status",                        "ident" => "prmRamIdxBypassActualState",    "varType" => 1,     "varProfile" => "PLUGGIT.BypassState",          "varHasAction" => true),
         array("name" => "VOC",                                  "ident" => "prmVOC",                        "varType" => 2,     "varProfile" => null,                           "varHasAction" => false),
@@ -38,11 +38,14 @@ class Pluggit extends IPSModule
 
         $this->RegisterPropertyString("IP", "");
         $this->RegisterPropertyInteger("Poller", 3);
-        $this->RegisterPropertyInteger("ResetFanSpeedLevel", 1);
+        $this->RegisterPropertyInteger("ResetFanSpeedLevel", 3);
         $this->RegisterPropertyInteger("AlarmArchive", 1);
-
+        $this->RegisterPropertyInteger("FilterControl", 0);
+        $this->RegisterPropertyInteger("FilterDurability", 182);
+        $this->RegisterPropertyInteger("NewYearsEveAutomatic", 1);
         $this->RegisterTimer("Poller", 0, "PLUG_Update(\$_IPS['TARGET']);");
-        $this->RegisterTimer("ResetFanSpeedLevel", 0, "PLUG_SetFanSpeedLevel(\$_IPS['TARGET'], 3);");
+        $this->RegisterTimer("CheckTimer", 60000, "PLUG_Check(\$_IPS['TARGET']);");
+        $this->RegisterTimer("ResetFanSpeedLevelTimer", 0, "PLUG_SetFanSpeedLevel(\$_IPS['TARGET'], 3);");
     }
     
     public function ApplyChanges()
@@ -55,6 +58,16 @@ class Pluggit extends IPSModule
 
         // create variables
         foreach ($this->Modbus_Properties as $property) {
+            if($property['ident'] == "prmFilterRemainingTime" && $this->ReadPropertyInteger("FilterControl") == 1) {
+                $var = @IPS_GetObjectIDByIdent($property['ident'], $this->InstanceID);
+                if($var) {
+                    @$this->DisableAction($property['ident']);
+                    IPS_DeleteVariable($var);
+                } 
+                
+                continue;
+            }
+
             $var = @IPS_GetObjectIDByIdent($property['ident'], $this->InstanceID);
             if(!$var) {
                 $var = IPS_CreateVariable($property['varType']);
@@ -72,6 +85,76 @@ class Pluggit extends IPSModule
                 @$this->DisableAction($property['ident']);
         }
 
+        if($this->ReadPropertyInteger("FilterControl") == 1) {
+            $var = @IPS_GetObjectIDByIdent("FilterRemainingTime", $this->InstanceID);
+            if(!$var) {
+                $var = IPS_CreateVariable(1);
+                IPS_SetIdent($var, "FilterRemainingTime");
+                IPS_SetName($var, "Restzeit Filter");
+                IPS_SetParent($var, $this->InstanceID);
+
+                if(IPS_VariableProfileExists("PLUGGIT.FilterRemainingTime"))
+                    IPS_SetVariableCustomProfile($var, "PLUGGIT.FilterRemainingTime");
+
+                $this->EnableAction("FilterRemainingTime");
+            }
+
+            $var = @IPS_GetObjectIDByIdent("LastFilterChange", $this->InstanceID);
+            if(!$var) {
+                $var = IPS_CreateVariable(1);
+                IPS_SetIdent($var, "LastFilterChange");
+                IPS_SetName($var, "Timestamp letzter Filtertausch");
+                IPS_SetParent($var, $this->InstanceID);
+                SetValue($var, 0);
+            }
+        } else {
+            $var = @IPS_GetObjectIDByIdent("FilterRemainingTime", $this->InstanceID);
+            if($var) {
+                $this->DisableAction("FilterRemainingTime");
+                @IPS_DeleteVariable($var);
+            }
+        
+            $var = @IPS_GetObjectIDByIdent("LastFilterChange", $this->InstanceID);
+            if($var) {
+                @IPS_DeleteVariable($var);
+            }
+        } 
+
+        // Create internal hidden Variables for Previous and Target Fan Speed Level
+        $var = @IPS_GetObjectIDByIdent("FanSpeedLevel_Prev", $this->InstanceID);
+        if(!$var) {
+            $var = IPS_CreateVariable(1);
+            IPS_SetIdent($var, "FanSpeedLevel_Prev");
+            IPS_SetName($var, "FanSpeedLevel_Prev");
+            IPS_SetParent($var, $this->InstanceID);
+            IPS_SetHidden($var, true);
+
+            SetValue($var, -1);
+        }
+        $var = @IPS_GetObjectIDByIdent("FanSpeedLevel_Target", $this->InstanceID);
+        if(!$var) {
+            $var = IPS_CreateVariable(1);
+            IPS_SetIdent($var, "FanSpeedLevel_Target");
+            IPS_SetName($var, "FanSpeedLevel_Target");
+            IPS_SetParent($var, $this->InstanceID);
+            IPS_SetHidden($var, true);
+
+            SetValue($var, -1);
+        }
+
+        // Create internal hidden Variable for New Years Eve Protection
+        $var = @IPS_GetObjectIDByIdent("NewYearsEveProtectionIsActive", $this->InstanceID);
+        if(!$var) {
+            $var = IPS_CreateVariable(0);
+            IPS_SetIdent($var, "NewYearsEveProtectionIsActive");
+            IPS_SetName($var, "NewYearsEveProtectionIsActive");
+            IPS_SetParent($var, $this->InstanceID);
+            IPS_SetHidden($var, true);
+
+            SetValue($var, false);
+        }
+
+        // Create Alarm Archive Variable
         $var = @IPS_GetObjectIDByIdent("AlarmArchive", $this->InstanceID);
         if($this->ReadPropertyInteger("AlarmArchive") == 1) {
             if(!$var) {
@@ -117,6 +200,11 @@ class Pluggit extends IPSModule
                     $this->SetBypassState($Value);
                 }
                 break;
+            case 'FilterRemainingTime':
+                if($Value == 10) { // reset button
+                    $this->ResetFilterRemainingDays();
+                }
+                break;
             default:
                 break; 
         }
@@ -124,6 +212,10 @@ class Pluggit extends IPSModule
 
     public function Update() {
         foreach($this->Modbus_Properties as $property) {
+            if($property['ident'] == "prmFilterRemainingTime" && $this->ReadPropertyInteger("FilterControl") == 1) {
+                continue;
+            }
+
             $var = @IPS_GetObjectIDByIdent($property['ident'], $this->InstanceID);
             
             $value = null;
@@ -288,9 +380,77 @@ class Pluggit extends IPSModule
                     break;
             }
 
-            if($value != GetValue($var))
+            if($value != GetValue($var)) {
+                if($property['ident'] == "prmRomIdxSpeedLevel")
+                    SetValue(IPS_GetObjectIDByIdent("FanSpeedLevel_Prev", $this->InstanceID), GetValue($var));
+
                 SetValue($var, $value);
+            }
         }
+
+        if($this->ReadPropertyInteger("FilterControl") == 1) {
+            $filterDurability = $this->ReadPropertyInteger("FilterDurability");
+            $value = $this->GetFilterRemainingTimeInDays();
+
+            if($value > $filterDurability*0.33)
+                $color = 0x00d900;
+            elseif($value < $filterDurability*0.33 && $value > 30)
+                $color = 0xef9418;
+            else
+                $color = 0xFF0000;
+
+            IPS_SetVariableProfileAssociation("PLUGGIT.FilterRemainingTime", 1, "noch ".$value." Tage", "", $color);
+        }
+    }
+
+    public function Check() {
+        // Check if target fan speed level is current speed level (in case pluggit sets it automatically to unwanted value)
+        if($this->GetTimerInterval("ResetFanSpeedLevelTimer") > 0 && GetValue(IPS_GetObjectIDByIdent("prmRomIdxSpeedLevel", $this->InstanceID)) != GetValue(IPS_GetObjectIDByIdent("FanSpeedLevel_Target", $this->InstanceID))) {
+            $this->SetFanSpeedLevel(GetValue(IPS_GetObjectIDByIdent("FanSpeedLevel_Target", $this->InstanceID)));
+            $this->ModuleLogMessage("Lüftungsstufe wurde automatisch dem Sollwert (".GetValue(IPS_GetObjectIDByIdent("FanSpeedLevel_Target", $this->InstanceID)).") angepasst.");
+        }
+
+        // New Years Eve Protection
+        if($this->ReadPropertyInteger("NewYearsEveAutomatic") == 1) {
+            $nye_begin = DateTime::createFromFormat('d.m.Y H:i', "31.12.".date("Y")." 23:00");
+            $nye_end = DateTime::createFromFormat('d.m.Y H:i', "01.01.".(date("Y")+1)." 05:00");
+            if(date("z") == 0) { // when it's already 01.01, then we have to calculate the "old" and the "new" year
+                $nye_begin = DateTime::createFromFormat('d.m.Y H:i', "31.12.".(date("Y")-1)." 23:00");
+                $nye_end = DateTime::createFromFormat('d.m.Y H:i', "01.01.".(date("Y"))." 05:00");
+            }
+            $now = new DateTime();
+
+            if($now > $nye_begin && $now < $nye_end) {
+                // New Years Eve
+                if($this->GetFanSpeedLevel() != 0) {
+                    SetValue(IPS_GetObjectIDByIdent("NewYearsEveProtectionIsActive", $this->InstanceID), true);
+                    $this->ModuleLogMessage("Silvesterautomatik ist aktiv, die Lüftung wurde temporär deaktiviert!");
+                    $this->SetFanSpeedLevel(0);
+                }
+            }
+            else {
+                if(GetValue(IPS_GetObjectIDByIdent("NewYearsEveProtectionIsActive", $this->InstanceID)) == true) {
+                    SetValue(IPS_GetObjectIDByIdent("NewYearsEveProtectionIsActive", $this->InstanceID), false);
+                    $this->ModuleLogMessage(" Silvesterautomatik ist nicht mehr aktiv, die Lüftung wurde auf den vorherigen Wert (".GetValue(IPS_GetObjectIDByIdent("FanSpeedLevel_Prev", $this->InstanceID)).") zurück gestellt!");
+                    $this->SetFanSpeedLevel(GetValue(IPS_GetObjectIDByIdent("FanSpeedLevel_Prev", $this->InstanceID)));
+                }
+            }
+        }
+    }
+
+    private function GetFilterRemainingTimeInDays() {
+        $filterDurabilitySeconds = 60*60*24*$this->ReadPropertyInteger("FilterDurability");
+        $remainingDays = 0;
+        
+        $var = @IPS_GetObjectIDByIdent("LastFilterChange", $this->InstanceID);
+        $timestampLastFilterChange = GetValue($var);
+        if($timestampLastFilterChange > 0) {
+            $timestampNextFilterChange = $timestampLastFilterChange + $filterDurabilitySeconds;
+            $timeDiffSeconds = $timestampNextFilterChange - time();
+            $remainingDays = round($timeDiffSeconds/86400, 0);
+        } 
+
+        return $remainingDays;
     }
 
     public function GetNetworkIPAddress() {
@@ -544,11 +704,13 @@ class Pluggit extends IPSModule
     }
 
     public function SetFanSpeedLevel(?int $value) {
-        $this->SetTimerInterval("ResetFanSpeedLevel", 0);
+        $this->SetTimerInterval("ResetFanSpeedLevelTimer", 0);
 
         if($value >= 0 && $value <= 4) {
             if($this->GetOperatingState() != 1)
                 $this->SetOperatingState(1);
+
+            SetValue(IPS_GetObjectIDByIdent("FanSpeedLevel_Target", $this->InstanceID), $value);
 
             $address = 40325;
             $data = array($value);
@@ -556,7 +718,7 @@ class Pluggit extends IPSModule
             $this->SendWriteRequest(($address-40001), $data, $dataTypes);
 
             if($value == 0 || $value == 4) {
-                $this->SetTimerInterval("ResetFanSpeedLevel", $this->ReadPropertyInteger("ResetFanSpeedLevel")*3600000);
+                $this->SetTimerInterval("ResetFanSpeedLevelTimer", $this->ReadPropertyInteger("ResetFanSpeedLevel")*3600000);
             }
         }
     }
@@ -592,25 +754,37 @@ class Pluggit extends IPSModule
     }
 
     public function GetFilterRemainingDays() {
-        $address = 40555;
-        $result = $this->SendReadRequest(($address-40001), 2);
+        $return = null;
 
-        $output = null;
+        if($this->ReadPropertyInteger("FilterControl") == 0) {
+            $address = 40555;
+            $result = $this->SendReadRequest(($address-40001), 2);
 
-        if($result != false) {
-            $values = array_chunk($result, 4);
-            foreach($values as $bytes)
-                $output=PhpType::bytes2signedInt($bytes);
+            if($result != false) {
+                $values = array_chunk($result, 4);
+                foreach($values as $bytes)
+                    $return=PhpType::bytes2signedInt($bytes);
+            }
+        }
+        else if($this->ReadPropertyInteger("FilterControl") == 1) {
+            $return = $this->GetFilterRemainingTimeInDays();
         }
 
-        return $output;
+        return $return;
     }
 
     public function ResetFilterRemainingDays() {
-        $address = 40559;
-        $data = array(1);
-        $dataTypes = array("DINT");
-        $this->SendWriteRequest(($address-40001), $data, $dataTypes);
+        if($this->ReadPropertyInteger("FilterControl") == 0) {
+            $address = 40559;
+            $data = array(1);
+            $dataTypes = array("DINT");
+            $this->SendWriteRequest(($address-40001), $data, $dataTypes);
+        }
+        else if($this->ReadPropertyInteger("FilterControl") == 1) {
+            $var = @IPS_GetObjectIDByIdent("LastFilterChange", $this->InstanceID);
+            $timestamp = time();
+            SetValue($var, $timestamp);
+        }
     }
 
     public function GetBypassState() {
@@ -978,5 +1152,3 @@ class Pluggit extends IPSModule
         IPS_LogMessage(IPS_GetObject($this->InstanceID)['ObjectName'], $message);
     }
 }
-
-?>

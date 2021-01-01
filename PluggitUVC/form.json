@@ -1,9 +1,23 @@
 {
 	"elements":
 	[
-		{ "name": "IP",                 "type": "ValidationTextBox", "caption": "IP-Adresse:" },
-    	{ "name": "Poller",             "type": "NumberSpinner", "caption": "Abfrageintervall (s):" },
-    	{ "name": "ResetFanSpeedLevel", "type": "NumberSpinner", "caption": "Stufenwiederherstellung (h):" },
+		{ "name": "IP",                 "type": "ValidationTextBox", 	"caption": "IP-Adresse:" },
+    	{ "name": "Poller",             "type": "NumberSpinner", 		"caption": "Abfrageintervall (s):" },
+		{ "name": "ResetFanSpeedLevel", "type": "NumberSpinner", 		"caption": "Stufenwiederherstellung (h):" },
+		{ "name": "FilterControl", 		"type": "Select", 				"caption": "Filterüberwachung",
+			"options": [
+				{ "caption": "durch Lüftungsanlage", 	"value": 0 },
+				{ "caption": "durch Symcon-Modul", 		"value": 1 }
+			]
+		},
+		
+		{ "name": "FilterDurability", 	  "type": "NumberSpinner", 		"caption": "Filterhaltbarkeit (Tage):" },
+		{ "name": "NewYearsEveAutomatic", "type": "Select", 			"caption": "Sylvester-Automatik",
+			"options": [
+				{ "caption": "Deaktiviert", "value": 0 },
+				{ "caption": "Aktiviert", 	"value": 1 }
+			]
+		},
         { "name": "AlarmArchive",       "type": "CheckBox",             "caption": "Störungen protokollieren" }
 	],
 	"status":
