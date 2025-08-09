@@ -10,6 +10,13 @@
 				{ "caption": "durch Symcon-Modul", 		"value": 1 }
 			]
 		},
+		{ "name": "PowerControl", 		"type": "Select", 				"caption": "Betriebsmodus",
+			"options": [
+				{ "caption": "durch Lüftungsanlage", 	"value": 0 },
+				{ "caption": "durch separatem Aktor", 	"value": 1 }
+			]
+		},
+		{ "name": "PowerActuator", "type": "SelectVariable", "caption": "Aktor-Variable für Betriebsmodus", "validVariableTypes": [0], "requiredAction": 1 },
 		
 		{ "name": "FilterDurability", 	  "type": "NumberSpinner", 		"caption": "Filterhaltbarkeit (Tage):" },
 		{ "name": "NewYearsEveAutomatic", "type": "Select", 			"caption": "Sylvester-Automatik",

@@ -43,6 +43,8 @@ class Pluggit extends IPSModule
         $this->RegisterPropertyInteger("FilterControl", 0);
         $this->RegisterPropertyInteger("FilterDurability", 182);
         $this->RegisterPropertyInteger("NewYearsEveAutomatic", 1);
+        $this->RegisterPropertyInteger("PowerControl", 0);
+        $this->RegisterPropertyInteger("PowerActuator", 0);
         $this->RegisterTimer("Poller", 0, "PLUG_Update(\$_IPS['TARGET']);");
         $this->RegisterTimer("CheckTimer", 60000, "PLUG_Check(\$_IPS['TARGET']);");
         $this->RegisterTimer("ResetFanSpeedLevelTimer", 0, "PLUG_SetFanSpeedLevel(\$_IPS['TARGET'], 3);");
@@ -715,8 +717,24 @@ class Pluggit extends IPSModule
             $address = 40325;
             $data = array($value);
             $dataTypes = array("DINT");
-            $this->SendWriteRequest(($address-40001), $data, $dataTypes);
-
+            if($this->ReadPropertyInteger("PowerControl") == 1 && $this->ReadPropertyInteger("PowerActuator") > 1) {
+                if($value > 0 && GetValueBoolean($this->ReadPropertyInteger("PowerActuator")) == false) {
+                    RequestAction($this->ReadPropertyInteger("PowerActuator"), true);
+                    sleep(10);
+                    $this->SendWriteRequest(($address-40001), $data, $dataTypes);
+                } 
+                else if($value == 0 && GetValueBoolean($this->ReadPropertyInteger("PowerActuator")) == true) {
+                    RequestAction($this->ReadPropertyInteger("PowerActuator"), false);                    
+                } 
+                else {
+                    $this->SendWriteRequest(($address-40001), $data, $dataTypes); 
+                }
+            }
+            else {
+                $this->SendWriteRequest(($address-40001), $data, $dataTypes);
+            }
+            
+            
             if($value == 0 || $value == 4) {
                 $this->SetTimerInterval("ResetFanSpeedLevelTimer", $this->ReadPropertyInteger("ResetFanSpeedLevel")*3600000);
             }
